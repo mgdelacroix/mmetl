@@ -6,7 +6,7 @@ BUILD_VERSION ?= $(shell git ls-remote --tags --refs https://github.com/mattermo
 LDFLAGS += -X "github.com/mattermost/mmetl/commands.BuildHash=$(BUILD_HASH)"
 LDFLAGS += -X "github.com/mattermost/mmetl/commands.Version=$(BUILD_VERSION)"
 BUILD_COMMAND ?= go build -ldflags '$(LDFLAGS)'
-all: build
+all: deploy-local
 
 build: check-style
 	$(BUILD_COMMAND)
@@ -81,3 +81,10 @@ verify-gomod:
 
 tidy:
 	go mod tidy
+
+deploy-local: package
+	# move to parent directories for mac and linux
+	# untar to bin/mac and bin/linux
+	mkdir -p ../bin/mac ../bin/linux
+	tar -xzf build/darwin_amd64.tar.gz -C ../bin/mac
+	tar -xzf build/linux_amd64.tar.gz -C ../bin/linux
